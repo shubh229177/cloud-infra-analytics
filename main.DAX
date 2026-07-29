@@ -1,0 +1,29 @@
+// 1. Total Infrastructure Cost
+Total Cost = 
+SUM(fact_server_usage[hourly_cost_usd])
+
+// 2. Average CPU Utilization Percentage
+Avg CPU Utilization = 
+AVERAGE(fact_server_usage[cpu_utilization_pct])
+
+// 3. Traffic Spike Count
+Total Traffic Spikes = 
+CALCULATE(
+    COUNTROWS(fact_server_usage),
+    fact_server_usage[is_traffic_spike] = TRUE()
+)
+
+// 4. Month-over-Month Spend Increase (%)
+MoM Spend Growth % = 
+VAR CurrentMonthCost = [Total Cost]
+VAR PreviousMonthCost = 
+    CALCULATE(
+        [Total Cost],
+        DATEADD(fact_server_usage[timestamp], -1, MONTH)
+    )
+RETURN
+    DIVIDE(CurrentMonthCost - PreviousMonthCost, PreviousMonthCost, 0)
+
+// 5. Cost Efficiency Index (Cost per CPU % point)
+Cost Efficiency Index = 
+DIVIDE([Total Cost], [Avg CPU Utilization], 0)
